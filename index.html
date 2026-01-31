@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoScore | Earth Health Tracker</title>
+    <style>
+        :root {
+            --earth-green: #2d6a4f;
+            --earth-yellow: #ffca3a;
+            --earth-orange: #ff924c;
+            --earth-red: #ff595e;
+            --dark: #1a1a1a;
+            --light: #f4f1ea;
+            --gray-text: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .container {
+            max-width: 700px; width: 100%;
+            background: white; padding: 40px;
+            border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { margin: 0; font-weight: 800; letter-spacing: -1px; }
+
+        #display-results { display: none; margin-bottom: 30px; animation: slideUp 0.6s ease; }
+
+        .score-box { 
+            background: #fff; padding: 20px; border-radius: 15px; 
+            border: 2px solid var(--dark); margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .bar-bg {
+            width: 100%; height: 15px; background: #e0e0e0;
+            border-radius: 10px; overflow: hidden; margin-top: 10px;
+        }
+        #health-bar {
+            width: 100%; height: 100%; background: var(--earth-green);
+            transition: width 1.5s cubic-bezier(0.1, 0, 0.2, 1);
+        }
+
+        .question { margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        
+        select {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 2px solid #ddd; background: #fff; cursor: pointer;
+            outline: none; transition: all 0.3s;
+        }
+        select:focus { border-color: var(--earth-green); box-shadow: 0 0 8px rgba(45, 106, 79, 0.2); }
+
+        button {
+            width: 100%; padding: 18px; background: var(--dark);
+            color: white; border: none; border-radius: 12px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: var(--earth-green); }
+
+        .tagline {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: var(--gray-text);
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
+
+        .tip-card {
+            background: #f9f9f9; border-left: 6px solid var(--earth-green);
+            padding: 15px; border-radius: 10px; margin-bottom: 12px;
+            font-size: 0.95rem; line-height: 1.4;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Earth Health Score</h1>
+        <p>Measure your impact. Heal the planet.</p>
+    </header>
+
+    <div id="display-results">
+        <div class="score-box">
+            <div style="font-size: 1.2rem; font-weight: bold;">Planet Health: <span id="score-text">100</span>%</div>
+            <div class="bar-bg"><div id="health-bar" style="width: 0%;"></div></div>
+        </div>
+        <h3>Recommended Tasks to Improve:</h3>
+        <div id="tips-list"></div>
+        <button style="margin-top:20px; background:#666;" onclick="location.reload()">Recalculate</button>
+        <span class="tagline">Designed for a balanced planet</span>
+    </div>
+
+    <div id="quiz">
+        <div class="question">
+            <label>1. How do you mostly get around?</label>
+            <select class="calc" id="transport">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">Walking, Cycling, or Skating</option>
+                <option value="5">Public Transport (Bus/Train)</option>
+                <option value="15">Small Car / Carpooling</option>
+                <option value="25">Large SUV / Solo Driving</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>2. What best describes your typical meals?</label>
+            <select class="calc" id="diet">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">Fully Plant-based (Vegan)</option>
+                <option value="5">Vegetarian (Eggs/Dairy included)</option>
+                <option value="15">Meat a few times a week</option>
+                <option value="25">Meat with almost every meal</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>3. Do you remember to turn off lights/AC when leaving a room?</label>
+            <select class="calc" id="energy">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">Always - I'm very strict about it</option>
+                <option value="10">Sometimes / I forget occasionally</option>
+                <option value="20">Rarely - I leave things running</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>4. How long are your typical showers?</label>
+            <select class="calc" id="water">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">Under 5 minutes (Quick & efficient)</option>
+                <option value="10">5 to 15 minutes</option>
+                <option value="20">Over 15 minutes / Daily baths</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>5. How much of your waste do you recycle or compost?</label>
+            <select class="calc" id="waste">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">Most of it (Paper, Plastic, Food)</option>
+                <option value="10">Some of it (Just bottles/cans)</option>
+                <option value="20">None / I put everything in one bin</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>6. How often do you buy new clothes or gadgets?</label>
+            <select class="calc" id="shopping">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">Only when I absolutely need them</option>
+                <option value="10">Once or twice a month</option>
+                <option value="20">I love shopping / Multiple times a week</option>
+            </select>
+        </div>
+
+        <div class="question">
+            <label>7. How many flights did you take in the last year?</label>
+            <select class="calc" id="travel">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="0">None / Staycations</option>
+                <option value="10">1-2 short flights</option>
+                <option value="30">Frequent long-distance travel</option>
+            </select>
+        </div>
+
+        <button onclick="runCalculation()">Check Earth Score</button>
+        <span class="tagline">Designed for a balanced planet</span>
+    </div>
+</div>
+
+<script>
+    function runCalculation() {
+        let totalImpact = 0;
+        let selections = {};
+        let allAnswered = true;
+        
+        document.querySelectorAll('.calc').forEach(select => {
+            if (select.value === "") {
+                allAnswered = false;
+                select.style.borderColor = "var(--earth-red)";
+            } else {
+                select.style.borderColor = "#ddd";
+                let val = parseInt(select.value);
+                totalImpact += val;
+                selections[select.id] = val;
+            }
+        });
+
+        if (!allAnswered) {
+            alert("Please provide an answer for all 7 sectors!");
+            return;
+        }
+
+        let healthScore = 100 - totalImpact;
+        if(healthScore < 5) healthScore = 5;
+
+        showResults(healthScore, selections);
+    }
+
+    function showResults(score, selections) {
+        document.getElementById('quiz').style.display = 'none';
+        document.getElementById('display-results').style.display = 'block';
+        
+        const bar = document.getElementById('health-bar');
+        const text = document.getElementById('score-text');
+        
+        text.innerText = score;
+        setTimeout(() => { bar.style.width = score + "%"; }, 100);
+
+        if(score > 80) bar.style.backgroundColor = "var(--earth-green)";
+        else if(score > 55) bar.style.backgroundColor = "var(--earth-yellow)";
+        else if(score > 35) bar.style.backgroundColor = "var(--earth-orange)";
+        else bar.style.backgroundColor = "var(--earth-red)";
+
+        const tipsList = document.getElementById('tips-list');
+        tipsList.innerHTML = "";
+
+        let recoveryPlan = [];
+
+        // Dynamic Suggestions based on selection values
+        if(selections.diet >= 25) recoveryPlan.push("🌱 <strong>Diet:</strong> Try 'Meatless Mondays'. Replacing meat just one day a week saves huge amounts of water and CO2.");
+        else if(selections.diet >= 5) recoveryPlan.push("🥗 <strong>Diet:</strong> You're doing great! Try sourcing more local seasonal dairy to reduce 'food miles'.");
+        else recoveryPlan.push("🌿 <strong>Diet:</strong> Your plant-based lifestyle is a massive win for the planet's health. Keep it up!");
+
+        if(selections.transport >= 25) recoveryPlan.push("🚲 <strong>Transport:</strong> Try a 'No-Car Friday'—use a bike or walk for short trips under 2km.");
+        else if(selections.transport >= 5) recoveryPlan.push("🚌 <strong>Transport:</strong> Good job using public transit. Try walking for trips under 15 minutes to save even more.");
+        else recoveryPlan.push("🚶 <strong>Transport:</strong> Walking and cycling are the best ways to keep the atmosphere clean!");
+
+        if(selections.energy >= 10) recoveryPlan.push("💡 <strong>Energy:</strong> Unplug electronics when not in use to save 'phantom' energy drain.");
+        if(selections.water >= 10) recoveryPlan.push("🚿 <strong>Water:</strong> Try to shave 2 minutes off your shower time to save gallons of water.");
+        if(selections.waste >= 10) recoveryPlan.push("♻️ <strong>Waste:</strong> Start a small 're-use' box. Use old jars for storage instead of buying new ones.");
+        if(selections.shopping >= 10) recoveryPlan.push("👕 <strong>Shopping:</strong> Before buying something new, wait 24 hours to see if you truly need it.");
+        if(selections.travel >= 10) recoveryPlan.push("🌳 <strong>Travel:</strong> Look for 'Carbon Offset' options or support local reforestation for your next trip.");
+
+        // Show top 4 most relevant tips
+        recoveryPlan.slice(0, 4).forEach(tip => {
+            let div = document.createElement('div');
+            div.className = 'tip-card';
+            div.innerHTML = tip;
+            tipsList.appendChild(div);
+        });
+    }
+</script>
+
+</body>
+</html>
